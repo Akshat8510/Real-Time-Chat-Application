@@ -1,9 +1,3 @@
-Since you are using **Django Channels** and the **Groq Llama 3.3** model, your README should look professional to show off the project to others (or recruiters).
-
-Here is a complete, high-quality `README.md` file tailored for your repository.
-
-***
-
 # Real-Time Chat Application with Llama 3.3 AI 💬🤖
 
 A high-performance, real-time chat application built with **Django Channels** and integrated with **Groq's Llama 3.3 70B** model for instant AI responses.

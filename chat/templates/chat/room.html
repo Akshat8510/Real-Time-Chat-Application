@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat Room</title>
+    <style>
+        #chat-log { width: 100%; height: 300px; border: 1px solid #ccc; overflow-y: scroll; padding: 10px; background: #f9f9f9; }
+        .user { color: blue; font-weight: bold; }
+        .ai { color: green; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h2>Room: {{ room_name }}</h2>
+    <div id="chat-log"></div><br>
+    <input id="chat-message-input" type="text" placeholder="Type /ai to ask Llama...">
+    <button id="chat-message-submit">Send</button>
+
+    {{ room_name|json_script:"room-name" }}
+<script>
+    const roomName = JSON.parse(document.getElementById('room-name').textContent);
+    
+    // Check if we are on http or https and use ws or wss
+    const ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
+    
+    const chatSocket = new WebSocket(
+        ws_scheme + '://' + window.location.host + '/ws/chat/' + roomName + '/'
+    );
+
+    chatSocket.onmessage = function(e) {
+        const data = JSON.parse(e.data); // Must be uppercase JSON
+        const log = document.querySelector('#chat-log');
+        log.innerHTML += (`<div><b>${data.username}:</b> ${data.message}</div>`);
+        log.scrollTop = log.scrollHeight;
+    };
+
+    chatSocket.onclose = function(e) {
+        console.error('Chat socket closed unexpectedly');
+    };
+
+    document.querySelector('#chat-message-submit').onclick = function(e) {
+        const messageInputDom = document.querySelector('#chat-message-input');
+        const message = messageInputDom.value;
+        
+        // Only send if message is not empty and socket is open
+        if (message && chatSocket.readyState === WebSocket.OPEN) {
+            chatSocket.send(JSON.stringify({ // Must be uppercase JSON
+                'message': message,
+                'username': 'You'
+            }));
+            messageInputDom.value = '';
+        }
+    };
+</script>
+</body>
+</html>
